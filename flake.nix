@@ -1,5 +1,5 @@
 {
-  description = "A basic flake with a shell";
+  description = "Basic direnv shell flake for this rust project";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
@@ -10,7 +10,9 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = [ pkgs.hello ];
+          packages = [ 
+						pkgs.hello 
+					];
         };
       }
 		);
