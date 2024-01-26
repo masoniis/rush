@@ -1,10 +1,17 @@
 {
-  description = "Awesome rsh flake";
+  description = "A basic flake with a shell";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
 
-  outputs = { self, nixpkgs }: {
-		packages.aarch64-darwin.default = nixpkgs.legacyPackages.aarch64-darwin.hello;
-		packages.aarch64-darwin.hello = nixpkgs.legacyPackages.aarch64-darwin.hello; 
-
-		# checks.aarch64-darwin."test" = derivation;
-  };
+  outputs = { nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+      in
+      {
+        devShells.default = pkgs.mkShell {
+          packages = [ pkgs.hello ];
+        };
+      }
+		);
 }
