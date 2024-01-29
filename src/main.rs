@@ -2,24 +2,26 @@
 // use nix::unistd::ForkResult::{Child, Parent};
 // use nix::unistd::{execve, fork, getpid};
 use nix::sys::signal;
-use std::io;
-use std::{thread, time};
+// use std::io;
+// use std::{thread, time};
 
 fn main() {
-    let sigint = signal::SigAction::new(
+    println!("hello world");
+
+    let _sigint = signal::SigAction::new(
         signal::SigHandler::Handler(handle_sigint),
         signal::SaFlags::empty(),
         signal::SigSet::empty(),
     );
-
-    loop {
-        println!("Doing work");
-        // let mut input_text = String::new();
-        //
-        // io::stdin()
-        //     .read_line(&mut input_text)
-        //     .expect("failed to read from stdin");
-    }
+    //
+    // loop {
+    //     println!("Doing work");
+    //     let mut input_text = String::new();
+    //
+    //     io::stdin()
+    //         .read_line(&mut input_text)
+    //         .expect("failed to read from stdin");
+    // }
     // let pid = fork();
     //
     // println!("Hello from process with pid: {}", pid);
