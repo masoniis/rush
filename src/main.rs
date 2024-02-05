@@ -83,6 +83,11 @@ fn main() {
     }
 }
 
+fn quit() {
+    println!("Goodbye!");
+    std::process::exit(0);
+}
+
 // Idle main thread until child foreground process is done
 fn wait_fg(jobs: &jobs::JobList) {
     let jid: Option<Pid> = match jobs.fg_job() {

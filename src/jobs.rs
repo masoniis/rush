@@ -37,7 +37,6 @@ impl JobList {
     }
 
     pub fn fg_job(&self) -> Option<Job> {
-        // println!("{}", self);
         for job in self.jobs.iter() {
             if !job.bg {
                 return Some(job.clone());
@@ -50,7 +49,10 @@ impl JobList {
 impl fmt::Display for JobList {
     fn fmt(&self, _f: &mut fmt::Formatter) -> fmt::Result {
         for job in self.jobs.iter() {
-            print!("{}, bg={} ", job.jid, job.bg);
+            print!("pid: {}, bg={} ", job.jid, job.bg);
+        }
+        if self.jobs.len() == 0 {
+            return Err(fmt::Error);
         }
         Ok(())
     }
