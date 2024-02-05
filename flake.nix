@@ -12,6 +12,7 @@
         devShells.default = pkgs.mkShell {
           packages = [ 
 						pkgs.hello 
+						pkgs.libiconv  # Mac won't compile without this.
 					];
         };
       }

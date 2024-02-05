@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 # signal-hook = "0.3.17"
 nix = "0.18.0"
+phf = { version = "0.11", features = ["macros"] }

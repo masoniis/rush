@@ -6,6 +6,7 @@ use std::io::{self, Write};
 
 // use modern_rust::signal::SigHandler; <- Look into this to see if better than unsafe nix::sys:signal
 
+mod builtins;
 mod jobs;
 
 fn main() {
@@ -65,11 +66,21 @@ fn main() {
                 .map(|x| x.as_ref()) // convert each CString to a &CStr
                 .collect::<Vec<_>>(); // collect the results into a vector
 
-            match execvp(&cmd, &args) {
-                Ok(_) => (),
-                Err(_errmsg) => {
-                    println!("rsh: command not found -> {}", cmd.into_string().unwrap(),);
-                    return; // Kill child with failed command
+            match builtins::is_builtin(cmd.to_str().unwrap()) {
+                Some(func) => {
+                    // If builtin is found
+                    func();
+                    return; // Kill child after running builtin
+                }
+                None => {
+                    // No builtin, execute command
+                    match execvp(&cmd, &args) {
+                        Ok(_) => (),
+                        Err(_errmsg) => {
+                            println!("rsh: command not found -> {}", cmd.into_string().unwrap(),);
+                            return; // Kill child with failed command
+                        }
+                    }
                 }
             }
         } else {
