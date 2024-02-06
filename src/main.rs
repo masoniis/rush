@@ -4,6 +4,7 @@ use nix::unistd::{execvp, fork, Pid};
 use std::ffi::CString;
 use std::io::{self, Write};
 
+use crate::jobs::add_job;
 // use modern_rust::signal::SigHandler; <- Look into this to see if better than unsafe nix::sys:signal
 
 mod builtins;
@@ -92,11 +93,6 @@ fn main() {
         }
         println!(); // Add an extra line after each command
     }
-}
-
-fn quit() {
-    println!("Goodbye!");
-    std::process::exit(0);
 }
 
 // Idle main thread until child foreground process is done

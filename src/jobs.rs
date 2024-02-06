@@ -1,5 +1,20 @@
 use nix::unistd::Pid;
+use std::cell::RefCell;
 use std::fmt;
+
+thread_local! { // Mutable thread local static initialization
+    // static JOB_LIST: JobList = JobList { jobs: Vec::new() };
+    static JOB_LIST: RefCell<JobList> = RefCell::new(JobList::new());
+}
+
+pub fn add_job(jid: Pid, bg: bool) {
+    JOB_LIST.with(|x| x.borrow_mut().add_job(jid, bg));
+    // JOB_LIST.with(|x| x.add_job(jid, bg));
+}
+
+pub fn fg_job() {
+    JOB_LIST.with(|x| x.borrow_mut().fg_job());
+}
 
 pub struct Job {
     jid: Pid,
