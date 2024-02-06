@@ -1,3 +1,4 @@
+use jobs::fg_job;
 use nix::sys::signal;
 use nix::sys::wait::{waitpid, WaitPidFlag};
 use nix::unistd::{execvp, fork, Pid};
@@ -29,8 +30,6 @@ fn main() {
         signal::sigaction(signal::SIGCHLD, &_sigchld).unwrap();
     }
 
-    let mut jobs = jobs::JobList::new(); // Initialize the joblist
-
     // Enter the shell perma-loop
     loop {
         print!("rsh> ");
@@ -46,6 +45,11 @@ fn main() {
             .expect("!! failed to read input");
         input = input.trim().to_string(); // Remove trailing whitespace
 
+        if input.len() == 0 {
+            println!();
+            continue;
+        }
+
         if input.ends_with("&") {
             input = input[0..input.len() - 2].to_string(); // Remove the & from the input
             bg = true;
@@ -55,7 +59,7 @@ fn main() {
         let input_split = input.split_whitespace(); //Iterator over input
 
         if (fork().unwrap()).is_child() {
-            jobs.add_job(nix::unistd::getpid(), bg); // Add the job to the JobList
+            add_job(nix::unistd::getpid(), bg);
 
             let inputs: Vec<CString> = input_split // convert the iterator into a vector
                 .map(|s| CString::new(s).unwrap()) // map each &str to a CString
@@ -67,7 +71,7 @@ fn main() {
                 .map(|x| x.as_ref()) // convert each CString to a &CStr
                 .collect::<Vec<_>>(); // collect the results into a vector
 
-            match builtins::is_builtin(cmd.to_str().unwrap()) {
+            match builtins::try_builtin(cmd.to_str().unwrap()) {
                 Some(func) => {
                     // If builtin is found
                     func();
@@ -88,7 +92,7 @@ fn main() {
             if bg {
                 continue;
             } else {
-                wait_fg(&jobs); // Idle main thread until child process is done
+                wait_fg(); // Idle main thread until child process is done
             }
         }
         println!(); // Add an extra line after each command
@@ -96,8 +100,8 @@ fn main() {
 }
 
 // Idle main thread until child foreground process is done
-fn wait_fg(jobs: &jobs::JobList) {
-    let jid: Option<Pid> = match jobs.fg_job() {
+fn wait_fg() {
+    let jid: Option<Pid> = match fg_job() {
         Some(job) => Some(job.get_jid()),
         None => None,
     };

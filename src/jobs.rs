@@ -4,7 +4,7 @@ use std::fmt;
 
 thread_local! { // Mutable thread local static initialization
     // static JOB_LIST: JobList = JobList { jobs: Vec::new() };
-    static JOB_LIST: RefCell<JobList> = RefCell::new(JobList::new());
+    pub static JOB_LIST: RefCell<JobList> = RefCell::new(JobList::new());
 }
 
 pub fn add_job(jid: Pid, bg: bool) {
@@ -12,10 +12,20 @@ pub fn add_job(jid: Pid, bg: bool) {
     // JOB_LIST.with(|x| x.add_job(jid, bg));
 }
 
-pub fn fg_job() {
-    JOB_LIST.with(|x| x.borrow_mut().fg_job());
+pub fn fg_job() -> Option<Job> {
+    let job = JOB_LIST.with(|x| x.borrow().fg_job());
+    match job {
+        Some(job) => Some(job),
+        None => None,
+    }
 }
 
+pub fn job_list() {
+    let jobs = JOB_LIST.with(|x| x.borrow().clone());
+    println!("{}", jobs)
+}
+
+#[derive(Clone)]
 pub struct Job {
     jid: Pid,
     bg: bool,
@@ -38,6 +48,7 @@ impl Job {
     }
 }
 
+#[derive(Clone)]
 pub struct JobList {
     jobs: Vec<Job>,
 }
